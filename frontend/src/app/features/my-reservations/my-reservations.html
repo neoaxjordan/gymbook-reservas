@@ -1,0 +1,54 @@
+<div class="max-w-4xl mx-auto py-6">
+  <h2 class="text-2xl font-bold text-gray-800 mb-5">Mis reservas</h2>
+
+  @if (loading) {
+    <div class="grid">
+      @for (i of [1,2,3]; track i) {
+        <div class="col-12 mb-3">
+          <p-skeleton height="100px" borderRadius="12px" />
+        </div>
+      }
+    </div>
+  }
+
+  @if (!loading) {
+    <div class="grid">
+      @for (r of reservations; track r.id) {
+        <div class="col-12 mb-3">
+          <p-card styleClass="shadow-1 border-round-xl">
+            <div class="flex justify-content-between align-items-center">
+              <div>
+                <h3 class="text-lg font-semibold text-gray-800 m-0">{{ r.classId.name }}</h3>
+                <p class="text-gray-500 text-sm mt-1 mb-0">
+                  <i class="pi pi-user mr-1"></i>{{ r.classId.instructor }}
+                </p>
+                <p class="text-gray-500 text-sm mt-1 mb-0">
+                  <i class="pi pi-calendar mr-1"></i>{{ r.classId.date | date:'dd-MM-yyyy' }}
+                </p>
+              </div>
+
+              <div class="flex align-items-center gap-3">
+                <p-tag
+                  [value]="isConfirmed(r) ? 'Confirmada' : 'Cancelada'"
+                  [severity]="isConfirmed(r) ? 'success' : 'danger'" />
+
+                @if (isConfirmed(r)) {
+                  <p-button
+                    label="Cancelar"
+                    severity="danger"
+                    [outlined]="true"
+                    [loading]="cancelingId === r.id"
+                    (onClick)="cancel(r)" />
+                }
+              </div>
+            </div>
+          </p-card>
+        </div>
+      }
+    </div>
+  }
+
+  @if (!loading && reservations.length === 0) {
+    <p-message severity="info" text="No tienes reservas activas." styleClass="w-full" />
+  }
+</div>

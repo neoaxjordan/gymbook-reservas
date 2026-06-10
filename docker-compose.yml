@@ -1,0 +1,51 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: gymbook_mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - gymbook_net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: gymbook_backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      MONGODB_URI: mongodb://mongo:27017/gymbook
+      JWT_SECRET: ${JWT_SECRET:-secret_dev}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+    depends_on:
+      - mongo
+    networks:
+      - gymbook_net
+
+  seed:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: gymbook_seed
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/gymbook
+      JWT_SECRET: ${JWT_SECRET:-secret_dev}
+    command: ["node", "dist/config/scripts/seed.js"]
+    depends_on:
+      - mongo
+    networks:
+      - gymbook_net
+    restart: "no"
+
+volumes:
+  mongo_data:
+
+networks:
+  gymbook_net:
+    driver: bridge

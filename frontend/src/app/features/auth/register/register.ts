@@ -9,11 +9,12 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
+import { RadioButtonModule } from 'primeng/radiobutton';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, ButtonModule, InputTextModule, CardModule, MessageModule],
+  imports: [ReactiveFormsModule, RouterLink, ButtonModule, InputTextModule, CardModule, MessageModule, RadioButtonModule],
   templateUrl: './register.html',
   styleUrl: './register.scss'
 })
@@ -25,11 +26,18 @@ export class RegisterComponent {
   loading = false;
   error   = '';
 
+  // Opciones para el SelectButton
+  roleOptions = [
+    { label: 'Cliente',        value: 1 },
+    { label: 'Administrador',  value: 0 },
+  ];
+
   form = this.fb.group({
     name:            ['', [Validators.required, Validators.minLength(3)]],
     email:           ['', [Validators.required, Validators.email]],
     password:        ['', [Validators.required, passwordStrengthValidator()]],
-    confirmPassword: ['', Validators.required]
+    confirmPassword: ['', Validators.required],
+    rol:             [2, Validators.required],
   }, { validators: passwordMatchValidator });
 
   getError = getErrorMessage;
@@ -40,9 +48,9 @@ export class RegisterComponent {
     this.loading = true;
     this.error   = '';
 
-    const { name, email, password } = this.form.getRawValue();
+    const { name, email, password, rol } = this.form.getRawValue();
 
-    this.auth.register({ name: name!, email: email!, password: password! }).subscribe({
+    this.auth.register({ name: name!, email: email!, password: password!, rol: rol! }).subscribe({
       next: (res) => {
         this.auth.saveSession(res);
         this.router.navigate(['/classes']);
